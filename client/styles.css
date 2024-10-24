@@ -1,0 +1,83 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    border: 1px solid #ffffff;
+}
+
+.left {
+    flex: 2; /* ฝั่งซ้ายใหญ่กว่า */
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left img {
+    width: 60%;
+}
+
+.right {
+    flex: 1;
+    background-color: #254472;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    width: 70%;
+    text-align: center;
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.login-box input[type="text"],
+.login-box input[type="password"] {
+    background-color: white;
+    color: black;
+}
+
+.login-box input[type="submit"] {
+    background-color: #4a8fdd;
+    color: white;
+    cursor: pointer;
+}
+
+.login-box a {
+    display: block;
+    margin-top: 10px;
+    color: #d3e1f8;
+    text-decoration: none;
+}
+.left img {
+    width: 100%; /* เปอร์เซ็นต์ของพื้นที่ที่โลโก้จะใช้ในส่วนซ้าย */
+}
