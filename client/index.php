@@ -128,7 +128,7 @@
                 <div></div>
             </div>
             <div class="dropdown-menu" id="menu">
-                <a href="#">Sign in</a>
+                <a href="login.php">Sign in</a>
                 <a href="#">Log out</a>
                 <a href="#">Profile</a>
                 <a href="#">Participation</a>
