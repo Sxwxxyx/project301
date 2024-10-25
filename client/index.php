@@ -116,8 +116,8 @@
     <div class="navbar">
         <div class="navbar-left">
             <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
-            <a href="#">Reservation</a>
-            <a href="#">Calendar</a>
+            <a href="reservation.php">Reservation</a>
+            <a href="calenders.php">Calendar</a>
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>
         </div>
