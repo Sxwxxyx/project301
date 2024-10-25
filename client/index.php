@@ -118,8 +118,8 @@
             <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
             <a href="#">Reservation</a>
             <a href="#">Calendar</a>
-            <a href="#">Room plan</a>
-            <a href="#">Contact us</a>
+            <a href="plan.php">Room plan</a>
+            <a href="contact.php">Contact us</a>
         </div>
         <div class="navbar-right">
             <div class="hamburger" onclick="toggleMenu()">
@@ -130,7 +130,7 @@
             <div class="dropdown-menu" id="menu">
                 <a href="login.php">Sign in</a>
                 <a href="#">Log out</a>
-                <a href="#">Profile</a>
+                <a href="profile.php">Profile</a>
                 <a href="#">Participation</a>
             </div>
         </div>

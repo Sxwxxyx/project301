@@ -41,7 +41,7 @@ img {
 <body>
     <div class="container">
         <h1>Room plan</h1>
-        <img src="plan.png" alt="Studyroom Plan">
+        <img src="../image/plan.png" alt="Studyroom Plan">
     </div>
 </body>
 </html>
