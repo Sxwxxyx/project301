@@ -13,6 +13,7 @@
             padding: 0;
             align-items: center;
             justify-content: center;
+            background-color: #f7f7f7;
         }
 
         /* เมนูบาร์ */
