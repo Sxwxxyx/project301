@@ -138,14 +138,13 @@
     </div>
 
     <div class="image-container">
-        <img src="https://scontent-bkk1-2.xx.fbcdn.net/v/t39.30808-6/461987385_1050974450152466_7396870744103942720_n.jpg?stp=cp6_dst-jpg&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=P6xWelmv98oQ7kNvgGvq2_z&_nc_zt=23&_nc_ht=scontent-bkk1-2.xx&_nc_gid=A6q4Flu1eUlGATUbxt23agI&oh=00_AYCikJOhR2Z1hjeEDhStHZqzJw8dyekN_tUnMu-i29Nj3Q&oe=671E5098" class="active" alt="Preview Image 1">
-        <img src="https://f.ptcdn.info/001/009/000/1377702895-DSC0085JPG-o.jpg" alt="Preview Image 2">
+        <img src="../image/Preview5copy.png" alt="Preview Image 1">
+        <img src="../image/Preview1.jpg" alt="Preview Image 2">
     </div>
 
     <script>
         let currentImageIndex = 0;
         const images = document.querySelectorAll('.image-container img');
-
         function switchImage() {
             images[currentImageIndex].classList.remove('active');
             currentImageIndex = (currentImageIndex + 1) % images.length;
