@@ -1,5 +1,41 @@
+<?php
+$responseMessage = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_student = $_POST['id_student'];
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $url = 'http://127.0.0.1:5000/register';
+    $data = [
+        'id_student' => $id_student,
+        'username' => $username,
+        'email' => $email,
+        'password' => $password,
+    ];
+
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+
+    $response = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    if ($response === FALSE || $httpCode !== 201) {
+        $responseMessage = 'Failed to register. Please try again.(ไม่สามารถลงทะเบียนได้ กรุณาลองใหม่อีกครั้ง)';
+    } else {
+        $result = json_decode($response, true);
+        $responseMessage = $result['message'] ?? 'Registration successful!(ลงทะเบียนสำเร็จ!)';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,54 +120,66 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Sign Up</h2>
-        <form id="registrationForm" action="#" method="post" onsubmit="return validateForm()">
-            <label for="student-id">ID Student</label>
-            <input type="text" id="student-id" name="student-id" placeholder="Student ID" required>
-            <div id="student-id-error" class="error"></div>
+        <form id="registrationForm" action="" method="post" onsubmit="return validateForm()">
+            <label for="id_student">ID Student</label>
+            <input type="text" id="id_student" name="id_student" placeholder="Student ID" required>
+            <div id="id_student-error" class="error"></div>
 
-            <label for="fullname">Name</label>
-            <input type="text" id="fullname" name="fullname" placeholder="Enter Full Name" required>
-            
+            <label for="username">Name</label>
+            <input type="text" id="username" name="username" placeholder="Enter Full Name" required>
+            <div id="username-error" class="error"></div>
+
             <label for="email">E-mail</label>
             <input type="email" id="email" name="email" placeholder="E-mail" required>
             <div id="email-error" class="error"></div>
-            
+
             <label for="password">Password</label>
             <input type="password" id="password" name="password" placeholder="Password" required>
             <div id="password-error" class="error"></div>
-            
+
             <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password"
+                required>
             <div id="confirm-password-error" class="error"></div>
-            
+
             <button type="submit" class="signin-btn">Sign Up</button>
         </form>
+        <?php if (!empty($responseMessage)): ?>
+            <p class="response-message"><?= htmlspecialchars($responseMessage); ?></p>
+        <?php endif; ?>
     </div>
 
     <script>
         function validateForm() {
             let isValid = true;
-
             // Clear previous error messages
-            document.getElementById('student-id-error').innerText = '';
+            document.getElementById('id_student-error').innerText = '';
             document.getElementById('email-error').innerText = '';
             document.getElementById('password-error').innerText = '';
             document.getElementById('confirm-password-error').innerText = '';
 
             // Validate Student ID (10 digits)
-            const studentID = document.getElementById('student-id').value;
+            const studentID = document.getElementById('id_student').value;
             if (!/^\d{10}$/.test(studentID)) {
-                document.getElementById('student-id-error').innerText = 'Student ID must be exactly 10 digits.';
+                document.getElementById('id_student-error').innerText = 'Student ID must be exactly 10 digits.';
                 isValid = false;
             }
 
-            // Validate Email (must include "@gmail.com")
+            // Validate Username
+            const username = document.getElementById('username').value;
+            if (username.trim() === '') {
+                document.getElementById('username-error').innerText = 'Name cannot be empty.';
+                isValid = false;
+            }
+
+            // Validate Email (simple format check)
             const email = document.getElementById('email').value;
-            if (!/@gmail\.com$/.test(email)) {
-                document.getElementById('email-error').innerText = 'Email must contain "@gmail.com".';
+            if (!/.+@.+\..+/.test(email)) {
+                document.getElementById('email-error').innerText = 'Email format is invalid.';
                 isValid = false;
             }
 
@@ -153,4 +201,6 @@
         }
     </script>
 </body>
+
 </html>
+
