@@ -1,122 +1,336 @@
-<?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $id_student = $_POST['id_student'];
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+<!DOCTYPE html>
+<html lang="en">
 
-        //create the URL and call the API
-        $url = 'http://127.0.0.1:5000/register?id_student=' . urlencode($id_student) . '&username=' . urlencode($username) .'&email='. urlencode($email) .'&password='. urlencode($password);
-        $response = file_get_contents($url);
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
 
-        // Check for errors
-        if ($response === FALSE) {
-            echo 'ไม่ให้สมัครค่ะ';
+<body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7f7f7;
         }
-        else {
-            echo $response; //Display the API response
+
+        /* เมนูบาร์ */
+        .navbar {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-         // แปลงการตอบกลับจาก JSON เป็น array
-         $result = json_decode($response, true);
-
-         if (!$result['success']) {
-             echo $result['ID ซ้ำ ไม่สามารถสมัครได้']; // "ID ซ้ำ ไม่สามารถสมัครได้"
-         } else {
-             echo $result['สมัครสมาชิกสำเร็จ']; // "สมัครสมาชิกสำเร็จ"
-         }
-    }
-?>
-
-
-from flask import Flask, request
-from pymongo import MongoClient
-
-
-app = Flask(__name__)
-
-client = MongoClient("mongodb://localhost:27017")
-db = client["project301"]
-register = db["register"]
-
-@app.route('/')
-def home():
-    return 'Hello, Flask!'
-
-@app.route('/register', methods=['GET' , 'POST'])
-def register():
-    # Get form data from the POST request
-    id_student = request.args.get('id_student')
-    username = request.args.get('username')
-    email = request.args.get('email')
-    password = request.args.get('password') 
-
-    # Insert the data into MongoDB
-    if id_student and username and email and password:  # Ensure both fields are provided
-        result = accounts.insert_one({'id_student': id_student, 'username': username, 'email': email, 'password': password})
-        return {
-            "id": str(result.inserted_id),
-            "username": username,
-            "password": password
+        /* เมนูซ้าย */
+        .navbar-left {
+            display: flex;
+            align-items: center;
         }
-        
-        
-    result = register.insert_one({
-        "id_student": data['id_student'],
-        "username": data['username'],
-        "email": data['email'],
-        "password": data['password']
-    })
-    
-    return jsonify({"message": "User added successfully!", "user_id": str(result.inserted_id)}), 201
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-    <script>
-        function validateForm() {
-            let isValid = true;
-
-            // Clear previous error messages
-            document.getElementById('student-id-error').innerText = '';
-            document.getElementById('email-error').innerText = '';
-            document.getElementById('password-error').innerText = '';
-            document.getElementById('confirm-password-error').innerText = '';
-
-            // Validate Student ID (10 digits)
-            const studentID = document.getElementById('student-id').value;
-            if (!/^\d{10}$/.test(studentID)) {
-                document.getElementById('student-id-error').innerText = 'Student ID must be exactly 10 digits.';
-                isValid = false;
-            }
-
-            // Validate Email (must include "@gmail.com")
-            const email = document.getElementById('email').value;
-            if (!/@gmail\.com$/.test(email)) {
-                document.getElementById('email-error').innerText = 'Email must contain "@gmail.com".';
-                isValid = false;
-            }
-
-            // Validate Password (at least 6 characters, contains letters and numbers)
-            const password = document.getElementById('password').value;
-            if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) {
-                document.getElementById('password-error').innerText = 'Password must be at least 6 characters and contain letters and numbers.';
-                isValid = false;
-            }
-
-            // Validate Confirm Password (matches Password)
-            const confirmPassword = document.getElementById('confirm-password').value;
-            if (confirmPassword !== password) {
-                document.getElementById('confirm-password-error').innerText = 'Passwords do not match.';
-                isValid = false;
-            }
-
-            return isValid;
+        /* โลโก้ */
+        .navbar-left img {
+            height: 50px;
+            margin-right: 20px;
         }
-    </script>
+
+        /* ลิงก์เมนู */
+        .navbar-left a {
+            text-decoration: none;
+            color: #333;
+            padding: 0 20px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar-left a:hover {
+            color: #007bff;
+        }
+
+        /* ปุ่มแฮมเบอร์เกอร์ */
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 22px;
+        }
+
+        .hamburger div {
+            background-color: #333;
+            height: 3px;
+            width: 100%;
+        }
+
+        /* เมนูแสดงซ่อน */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 30px;
+            top: 60px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            z-index: 1;
+            /* Ensure it appears above other content */
+        }
+
+        .dropdown-menu a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .reservation {
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 1%
+                /* height: 80vh;  */
+        }
+
+        .container {
+
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            align-self: flex-start;
+            /* ให้อยู่ด้านบนของ container */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #c4c4c4;
+            text-align: center;
+            padding: 10px;
+            background-color: #a9c0e7;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+            vertical-align: top;
+            /* ให้อักษรอยู่ด้านบนของเซลล์ */
+        }
+
+        form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #0050b3;
+        }
+
+        input[type="text"] {
+            width: 96.5%;
+            padding: 10px;
+            border: 1px solid #c4c4c4;
+            border-radius: 4px;
+            background-color: #c4d9f2;
+        }
+
+        .room {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #c4c4c4;
+            border-radius: 4px;
+            background-color: #c4d9f2;
+        }
+
+
+        input[type="date"] {
+            width: 96.5%;
+            padding: 10px;
+            border: 1px solid #c4c4c4;
+            border-radius: 4px;
+            background-color: #c4d9f2;
+        }
+
+        input[type="time"] {
+            width: 96.5%;
+            padding: 10px;
+            border: 1px solid #c4c4c4;
+            border-radius: 4px;
+            background-color: #c4d9f2;
+        }
+
+        [id="room_type"] button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #002244;
+        }
+    </style>
+    </head>
+
+    <body>
+
+        <div class="navbar">
+            <div class="navbar-left">
+                <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
+                <a href="reservation.php">Reservation</a>
+                <a href="calenders.php">Calendar</a>
+                <a href="plan.php">Room plan</a>
+                <a href="contact.php">Contact us</a>
+            </div>
+            <div class="navbar-right">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="dropdown-menu" id="menu">
+                    <a href="login.php">Sign in</a>
+                    <a href="#">Log out</a>
+                    <a href="profile.php">Profile</a>
+                    <a href="participation.php">Participation</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="reservation">
+            <div class="container">
+                <h1>RESERVATION</h1>
+                <!-- ตารางที่อยู่ด้านบน -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Room Type</th>
+                            <th>Min. (Persons)</th>
+                            <th>Max. (Persons)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A</td>
+                            <td>1</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>2</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>8</td>
+                            <td>16</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- แบบฟอร์มกรอกข้อมูลที่อยู่ด้านล่างตาราง -->
+                <form action="process_reservation.php" method="POST">
+                    <div class="form-group">
+                        <label for="user">User</label>
+                        <input type="text" id="user" name="user" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="room_type">Select Room</label>
+                        <select id="room_type" name="room_type" required class="room">
+                            <option value="">Select Room</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="A3">A3</option>
+                            <option value="A4">A4</option>
+                            <option value="A5">A5</option>
+                            <option value="A6">A6</option>
+                            <option value="A7">A7</option>
+                            <option value="A8">A8</option>
+                            <option value="A9">A9</option>
+                            <option value="A10">A10</option>
+                            <option value="A11">A11</option>
+                            <option value="A12">A12</option>
+                            <option value="A13">A13</option>
+                            <option value="A14">A14</option>
+                            <option value="A15">A15</option>
+                            <option value="A16">A16</option>
+                            <option value="A17">A17</option>
+                            <option value="A18">A18</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="B3">B3</option>
+                            <option value="B4">B4</option>
+                            <option value="B5">B5</option>
+                            <option value="B6">B6</option>
+                            <option value="B7">B7</option>
+                            <option value="B8">B8</option>
+                            <option value="B9">B9</option>
+                            <option value="B10">B10</option>
+                            <option value="B11">B11</option>
+                            <option value="B12">B12</option>
+                            <option value="B13">B13</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
+                            <option value="C3">C3</option>
+                            <option value="C4">C4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date (YYYY-MM-DD)</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="start_time">Start Time</label>
+                        <input type="time" id="start-time" name="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_time">End Time</label>
+                        <input type="time" id="end-time" name="end_time" required>
+                    </div>
+                    <button type="submit">Check</button>
+                </form>
+
+    </body>
+
+</html>

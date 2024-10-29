@@ -44,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif ($httpCode === 200) {
                     $_SESSION['logged_in'] = true;
                     $_SESSION['email'] = $email;
-                    header("Location: index.php");
+                    $_SESSION['id_student'] = $result['id_student']; // เก็บ id_student ลงใน session
+                    header("Location: index.php"); // เปลี่ยนเส้นทางไปยังหน้าหลัก
                     exit();
                 } else {
                     $responseMessage = 'Unexpected error occurred. Please try again later.';
@@ -52,6 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
+
+// ล็อกเอาท์
+if (isset($_POST['logout'])) {
+    session_unset(); // ล้างข้อมูล session
+    session_destroy(); // ทำลาย session
+    header("Location: index.php"); // เปลี่ยนเส้นทางไปยังหน้าหลัก
+    exit();
 }
 ?>
 
