@@ -69,7 +69,7 @@ def login():
         
         # ตรวจสอบว่าพบรหัสผ่านที่ตรงกันในฐานข้อมูลหรือไม่
         if user and check_password_hash(user['password'], password):
-            return jsonify({"status": "Login successful"}), 200
+            return jsonify({"status": "Login successful", "id_student": user['id_student'], "email": user['email']}), 200
         else:
             return jsonify({"status": "Invalid credentials"}), 401
 
@@ -80,6 +80,7 @@ def login():
 @app.route('/reservation', methods=['POST'])
 def reservation():
     data = request.json
+    email = data.get('email')  # เพิ่มการรับ email
     id_student = data.get('id_student')
     room_type = data.get('room_type')
     date = data.get('date')
@@ -87,13 +88,13 @@ def reservation():
     end_time = data.get('end_time')
 
     # ตรวจสอบว่าไม่มีฟิลด์ว่างเปล่า
-    if not all([id_student, room_type, date, start_time, end_time]):
+    if not all([email, id_student, room_type, date, start_time, end_time]):
         return jsonify({"message": "กรอกข้อมูลให้ครบด้วยครับ"}), 400
 
-    # ตรวจสอบว่า id_student มีอยู่ใน collection 'registers' หรือไม่
-    student = registers.find_one({'id_student': id_student})
-    if not student:
-        return jsonify({"message": "ไม่พบ id_student ในระบบ"}), 404
+    # ตรวจสอบว่า email มี id_student ใน collection 'registers' หรือไม่
+    student = registers.find_one({"email": email})
+    if not student or student['id_student'] != id_student:
+        return jsonify({"message": "ไม่พบ email หรือ id_student ในระบบ"}), 404
 
     # ตรวจสอบการจองซ้ำ (หากมีการจองในช่วงวันและเวลานี้แล้ว)
     existing_reservation = reservations.find_one({
@@ -117,7 +118,7 @@ def reservation():
     
     return jsonify({
         'id': str(result.inserted_id),
-        'id_student': id_student,
+        'id_student': id_student, # ส่งค่า id_student กลับไป
         'room_type': room_type,
         'date': date,
         'start_time': start_time,

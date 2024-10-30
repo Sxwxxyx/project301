@@ -103,8 +103,7 @@
             justify-content: center;
             align-items: center;
             /* height: 100vh; */
-            padding-top: 1%
-            font-family: Arial, sans-serif;
+            padding-top: 1% font-family: Arial, sans-serif;
         }
 
         .container {
@@ -134,13 +133,15 @@
 
     <div class="navbar">
         <div class="navbar-left">
-            <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
+            <a href="index.php">
+                <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
+            </a>
             <a href="reservation.php">Reservation</a>
-            <a href="calenders.php">Calendar</a>
+            <!-- <a href="calenders.php">Calendar</a> -->
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>
         </div>
-        <div class="navbar-right">
+        <!-- <div class="navbar-right">
             <div class="hamburger" onclick="toggleMenu()">
                 <div></div>
                 <div></div>
@@ -148,11 +149,11 @@
             </div>
             <div class="dropdown-menu" id="menu">
                 <a href="login.php">Sign in</a>
-                <a href="#">Log out</a>
+                <a href="logout.php">Log out</a>
                 <a href="profile.php">Profile</a>
                 <a href="participation.php">Participation</a>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="plan">
         <div class="container">

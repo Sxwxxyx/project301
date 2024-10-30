@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = json_decode($response, true);
         $responseMessage = $result['message'] ?? 'Registration successful!(ลงทะเบียนสำเร็จ!)';
+        // header("location:login.php");
     }
 }
 ?>
@@ -118,6 +119,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 5px;
             text-align: left;
         }
+
+        .response-message {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4caf50;
+            /* สีข้อความสำเร็จ */
+        }
     </style>
 </head>
 
@@ -149,8 +157,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="signin-btn">Sign Up</button>
         </form>
         <?php if (!empty($responseMessage)): ?>
-            <p class="response-message"><?= htmlspecialchars($responseMessage); ?></p>
+            <div class="response-message"><?= htmlspecialchars($responseMessage); ?></div>
         <?php endif; ?>
+        <div class="col-md-12 form-group text-left">
+            <h5>เป็นสมัครสมาชิกแล้ว</h5><a href="login.php">Login</a>
+        </div>
     </div>
 
     <script>
@@ -203,4 +214,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-

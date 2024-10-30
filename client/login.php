@@ -1,6 +1,12 @@
 <?php
 session_start();
-$responseMessage = ''; // เริ่มต้นตัวแปรข้อความตอบกลับ
+$responseMessage = ''; // เริ่มต้นตัวแปรข้อความตอบกลับง
+
+// เช็กว่าผู้ใช้ล็อกอินแล้วหรือยัง
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    header("Location: index.php");
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ตรวจสอบว่าอีเมลและรหัสผ่านไม่ว่างเปล่า
@@ -38,14 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $responseMessage = 'Error: Unable to reach the API.';
             } else {
                 $result = json_decode($response, true);
-                // ใช้โค้ด HTTP เพื่อตรวจสอบสถานะการเข้าสู่ระบบ
                 if ($httpCode === 401) {
                     $responseMessage = 'Invalid credentials. Please try again.';
-                } elseif ($httpCode === 200) {
+                } elseif ($httpCode === 200 && isset($result['id_student']) && isset($result['email'])) {
                     $_SESSION['logged_in'] = true;
-                    $_SESSION['email'] = $email;
-                    $_SESSION['id_student'] = $result['id_student']; // เก็บ id_student ลงใน session
-                    header("Location: index.php"); // เปลี่ยนเส้นทางไปยังหน้าหลัก
+                    $_SESSION['email'] = $result['email'];
+                    $_SESSION['id_student'] = $result['id_student'];
+                    header("Location: index.php");
                     exit();
                 } else {
                     $responseMessage = 'Unexpected error occurred. Please try again later.';
@@ -59,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($_POST['logout'])) {
     session_unset(); // ล้างข้อมูล session
     session_destroy(); // ทำลาย session
-    header("Location: index.php"); // เปลี่ยนเส้นทางไปยังหน้าหลัก
+    header("Location: index.php");
     exit();
 }
 ?>
@@ -67,12 +72,14 @@ if (isset($_POST['logout'])) {
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSU Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <div class="left">
@@ -86,12 +93,16 @@ if (isset($_POST['logout'])) {
                     <input type="password" id="password" name="password" placeholder="Password" required>
                     <input type="submit" value="SIGN IN">
                 </form>
-                <!-- <a href="#">Forgot password: "PSU Passport"</a> -->
                 <?php if (isset($responseMessage)): ?>
                     <p class="response-message"><?= htmlspecialchars($responseMessage); ?></p>
                 <?php endif; ?>
+                <div class="registernow">
+                    <h5>ยังไม่ได้สมัครสมาชิก</h5><a href="register.php">register Now?</a>
+                </div>
             </div>
         </div>
     </div>
 </body>
+
+
 </html>

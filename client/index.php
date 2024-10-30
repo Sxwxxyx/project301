@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="th">
 
@@ -12,9 +15,9 @@
             padding: 0;
             background-color: #f7f7f7;
             display: flex;
+            height: 100vh;
         }
 
-        /* Navbar */
         .navbar {
             position: fixed;
             top: 0;
@@ -29,19 +32,19 @@
             z-index: 1000;
         }
 
-        /* Left menu */
+        /* เมนูซ้าย */
         .navbar-left {
             display: flex;
             align-items: center;
         }
 
-        /* Logo */
+        /* โลโก้ */
         .navbar-left img {
             height: 50px;
             margin-right: 20px;
         }
 
-        /* Navbar links */
+        /* ลิงก์เมนู */
         .navbar-left a {
             text-decoration: none;
             color: #333;
@@ -55,7 +58,7 @@
             color: #007bff;
         }
 
-        /* Hamburger button */
+
         .hamburger {
             cursor: pointer;
             display: flex;
@@ -71,7 +74,6 @@
             width: 100%;
         }
 
-        /* Dropdown menu */
         .dropdown-menu {
             display: none;
             position: absolute;
@@ -97,43 +99,29 @@
             color: #fff;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 240px;
             background-color: #f7f7f7;
             padding: 20px;
             border-right: 1px solid #ddd;
             margin-top: 70px;
-            /* Offset for navbar */
             height: calc(100vh - 70px);
             overflow-y: auto;
         }
 
-        /* Sidebar content styling */
         .status-box,
         .calendar-box,
         .qr-code-box {
             margin-bottom: 20px;
         }
 
-        .status-box {
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
+        .status-box,
         .calendar-box {
             background-color: #fff;
             padding: 10px;
             border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
-        }
-
-        .qr-code-box img {
-            width: 100%;
-            border-radius: 4px;
         }
 
         .login-button {
@@ -149,18 +137,14 @@
             cursor: pointer;
         }
 
-        /* Main content */
         .main-content {
             flex: 1;
-            /* padding: 20px;
-            padding-top: 80px; */
-            /* margin-left: 240px; */
+            display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
 
-        /* Image container */
         .image-container {
             position: relative;
             width: 100%;
@@ -182,22 +166,22 @@
 
         .image-container img.active {
             opacity: 1;
-            /* width : 100% */
         }
     </style>
 </head>
 
 <body>
-
     <div class="navbar">
         <div class="navbar-left">
-            <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
+            <a href="index.php">
+                <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
+            </a>
             <a href="reservation.php">Reservation</a>
-            <a href="calenders.php">Calendar</a>
+            <!-- <a href="calenders.php">Calendar</a> -->
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>
         </div>
-        <div class="navbar-right">
+        <!-- <div class="navbar-right">
             <div class="hamburger" onclick="toggleMenu()">
                 <div></div>
                 <div></div>
@@ -209,7 +193,7 @@
                 <a href="profile.php">Profile</a>
                 <a href="#">Participation</a>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="sidebar">
@@ -219,44 +203,35 @@
         </div>
         <div class="calendar-box">
             <p><strong>October 2024</strong></p>
-            <!-- Calendar structure (add a dynamic calendar here if needed) -->
             <p>Sun Mon Tue Wed Thu Fri Sat</p>
             <p>... calendar dates ...</p>
         </div>
-        <a id="loginButton" href="login.php" class="login-button">
-            Sign in
-        </a>
+        <div>
+            <a id="loginButton"
+                href="<?php echo isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'logout.php' : 'login.php'; ?>"
+                class="login-button">
+                <?php echo isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'Log out' : 'Sign in'; ?>
+            </a>
 
-        <div class="qr-code-box">
-            <img src="https://via.placeholder.com/150" alt="QR Code">
+
         </div>
+        <!-- <div class="qr-code-box">
+            <img src="https://via.placeholder.com/150" alt="QR Code">
+        </div> -->
     </div>
 
     <div class="main-content">
         <div class="image-container">
-            <img src="../image/P1.jpg" alt="Preview Image 1">
+            <img src="../image/P1.jpg" alt="Preview Image 1" class="active">
             <img src="../image/P2.jpg" alt="Preview Image 2">
             <img src="../image/P3.jpg" alt="Preview Image 3">
         </div>
     </div>
 
     <script>
-        // // กำหนดสถานะการเข้าสู่ระบบจาก PHP
-        // let isLoggedIn = <?php echo isset($_SESSION['login']) ? 'true' : 'false'; ?>;
-
-        window.onload = function () {
-            const loginButton = document.getElementById("loginButton");
-            if (isLoggedIn) {
-                loginButton.innerHTML = "Log out";
-                loginButton.href = "logout.php";
-            } else {
-                loginButton.innerHTML = "Sign in";
-                loginButton.href = "login.php";
-            }
-        }
-
         let currentImageIndex = 0;
         const images = document.querySelectorAll('.image-container img');
+
         function switchImage() {
             images[currentImageIndex].classList.remove('active');
             currentImageIndex = (currentImageIndex + 1) % images.length;
@@ -269,10 +244,9 @@
             menu.style.display = (menu.style.display === "block") ? "none" : "block";
         }
 
-        // Close dropdown menu if clicked outside
         window.onclick = function (event) {
             var menu = document.getElementById("menu");
-            if (!event.target.matches('.hamburger') && menu.style.display === "block") {
+            if (!event.target.closest('.hamburger') && !event.target.closest('#menu')) {
                 menu.style.display = "none";
             }
         }
