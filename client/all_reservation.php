@@ -1,14 +1,56 @@
 <?php
 session_start();
 
+// ตั้งค่า URL ของ API
+$url = 'http://127.0.0.1:5000/all_reservation';
+
+// เริ่มต้น cURL
+$curl = curl_init($url);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+
+// ส่ง request ในรูปแบบ GET
+curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+
+// ดึงข้อมูลจาก API
+$response = curl_exec($curl);
+$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+curl_close($curl);
+
+// ตรวจสอบว่าการเรียก API สำเร็จหรือไม่
+$reservations = [];
+$error_message = '';
+
+if ($httpCode == 200) {
+    // แปลงข้อมูล JSON ที่ได้รับเป็น array
+    $reservations = json_decode($response, true);
+} else {
+    // กรณีเกิดข้อผิดพลาด
+    $error_message = "ไม่สามารถดึงข้อมูลการจองได้ (HTTP Code: $httpCode)";
+}
+
+// รับวันที่จาก URL
+$dateFilter = isset($_GET['date']) ? $_GET['date'] : ''; // รับวันที่จาก URL
+if ($dateFilter) {
+    $reservations = array_filter($reservations, function ($reservation) use ($dateFilter) {
+        return $reservation['date'] === $dateFilter; // เปรียบเทียบวันที่
+    });
+}
+
+// เช็ควันที่มีการจอง
+$bookedDates = array_map(function ($reservation) {
+    return $reservation['date'];
+}, $reservations);
 ?>
+
+
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Fade Transition</title>
+    <title>All Reservations</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,6 +58,7 @@ session_start();
             padding: 0;
             background-color: #f7f7f7;
             display: flex;
+            flex-direction: column;
             height: 100vh;
         }
 
@@ -33,19 +76,16 @@ session_start();
             z-index: 1000;
         }
 
-        /* เมนูซ้าย */
         .navbar-left {
             display: flex;
             align-items: center;
         }
 
-        /* โลโก้ */
         .navbar-left img {
             height: 50px;
             margin-right: 20px;
         }
 
-        /* ลิงก์เมนู */
         .navbar-left a {
             text-decoration: none;
             color: #333;
@@ -59,45 +99,10 @@ session_start();
             color: #007bff;
         }
 
-
-        .hamburger {
-            cursor: pointer;
+        .main-container {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 22px;
-        }
-
-        .hamburger div {
-            background-color: #333;
-            height: 3px;
-            width: 100%;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 30px;
-            top: 60px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 4px;
-            z-index: 1;
-        }
-
-        .dropdown-menu a {
-            text-decoration: none;
-            color: #333;
-            display: block;
-            padding: 10px 15px;
-            font-size: 14px;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #007bff;
-            color: #fff;
+            flex: 1;
+            padding-top: 70px;
         }
 
         .sidebar {
@@ -105,15 +110,8 @@ session_start();
             background-color: #f7f7f7;
             padding: 20px;
             border-right: 1px solid #ddd;
-            margin-top: 70px;
             height: calc(100vh - 70px);
             overflow-y: auto;
-        }
-
-        .status-box,
-        .calendar-box,
-        .qr-code-box {
-            margin-bottom: 20px;
         }
 
         .status-box,
@@ -123,6 +121,7 @@ session_start();
             border-radius: 4px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .login-button {
@@ -140,34 +139,31 @@ session_start();
 
         .main-content {
             flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        .image-container {
-            position: relative;
+        table {
             width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .image-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
         }
 
-        .image-container img.active {
-            opacity: 1;
+        th {
+            background-color: #f2f2f2;
         }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
 
         .calendar {
             padding: 10px;
@@ -232,96 +228,108 @@ session_start();
         h2 {
             font-size: 20px;
         }
+
+        .date.booked {
+            background-color: #AFD7F6;
+        }
     </style>
 </head>
 
 <body>
     <div class="navbar">
         <div class="navbar-left">
-            <a href="index.php">
-                <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
-            </a>
+            <a href="index.php"><img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png"
+                    alt="Website Logo"></a>
             <a href="reservation.php">Reservation</a>
             <a href="all_reservation.php">การจองทั้งหมด</a>
-            <!-- <a href="calenders.php">Calendar</a> -->
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>
         </div>
-        <!-- <div class="navbar-right">
-            <div class="hamburger" onclick="toggleMenu()">
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <div class="dropdown-menu" id="menu">
-                <a href="login.php">Sign in</a>
-                <a href="#">Log out</a>
-                <a href="profile.php">Profile</a>
-                <a href="#">Participation</a>
-            </div>
-        </div> -->
     </div>
 
-    <div class="sidebar">
-        <div class="status-box">
-            <p>📅 ปิดภาคการศึกษาที่ 1 (เสาร์-อาทิตย์)<br>26/10/2567 - 27/10/2567<br><span
-                    style="color:red;">CLOSED</span></p>
-        </div>
-        <div class="calendar">
-            <div class="header">
-                <button id="prevMonth">Previous</button>
-                <h2 id="monthYear"></h2>
-                <button id="nextMonth">Next</button>
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="status-box">
+                <p>📅 ปิดภาคการศึกษาที่ 1 (เสาร์-อาทิตย์)<br>26/10/2567 - 27/10/2567<br><span
+                        style="color:red;">CLOSED</span></p>
             </div>
-            <div class="days">
-                <div class="day">Sun</div>
-                <div class="day">Mon</div>
-                <div class="day">Tue</div>
-                <div class="day">Wed</div>
-                <div class="day">Thu</div>
-                <div class="day">Fri</div>
-                <div class="day">Sat</div>
+            <div class="calendar">
+                <div class="header">
+                    <button id="prevMonth">Previous</button>
+                    <h2 id="monthYear"></h2>
+                    <button id="nextMonth">Next</button>
+                </div>
+                <div class="days">
+                    <div class="day">Sun</div>
+                    <div class="day">Mon</div>
+                    <div class="day">Tue</div>
+                    <div class="day">Wed</div>
+                    <div class="day">Thu</div>
+                    <div class="day">Fri</div>
+                    <div class="day">Sat</div>
+                </div>
+                <div class="dates" id="dates"></div>
             </div>
-            <div class="dates" id="dates"></div>
+            <div style="padding-top: 20px;">
+                <a id="loginButton"
+                    href="<?= isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'logout.php' : 'login.php'; ?>"
+                    class="login-button">
+                    <?= isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'Log out' : 'Sign in'; ?>
+                </a>
+            </div>
         </div>
 
-        <div style="padding-top: 20px;">
-            <a id="loginButton"
-                href="<?php echo isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'logout.php' : 'login.php'; ?>"
-                class="login-button">
-                <?php echo isset($_SESSION['logged_in']) && $_SESSION['logged_in'] ? 'Log out' : 'Sign in'; ?>
-            </a>
-
-
+        <div class="main-content">
+            <h2>All Reservations</h2>
+            <?php if (!empty($error_message)): ?>
+                <p class="error"><?= htmlspecialchars($error_message); ?></p>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Room Type</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Username</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($reservations)): ?>
+                            <tr>
+                                <td colspan="5">ไม่พบข้อมูลการจอง</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($reservations as $reservation): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y', strtotime($reservation['date'])); ?></td>
+                                    <td><?= htmlspecialchars($reservation['room_type']); ?></td>
+                                    <td><?= date('H:i', strtotime($reservation['start_time'])); ?></td>
+                                    <td><?= date('H:i', strtotime($reservation['end_time'])); ?></td>
+                                    <td><?= htmlspecialchars($reservation['username']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
-        <!-- <div class="qr-code-box">
-            <img src="https://via.placeholder.com/150" alt="QR Code">
-        </div> -->
     </div>
-
-    <div class="main-content">
-        <div class="image-container">
-            <img src="../image/P1.jpg" alt="Preview Image 1" class="active">
-            <img src="../image/P2.jpg" alt="Preview Image 2">
-            <img src="../image/P3.jpg" alt="Preview Image 3">
-        </div>
-    </div>
-
     <script>
-        const reservedDates = ['2024-10-26', '2024-10-27']; // วันที่ที่มีการจอง
         const monthYear = document.getElementById('monthYear');
         const datesContainer = document.getElementById('dates');
         const prevMonthBtn = document.getElementById('prevMonth');
         const nextMonthBtn = document.getElementById('nextMonth');
-
         let currentDate = new Date();
+
+        // กำหนดข้อมูลวันที่ที่มีการจอง (จาก PHP array $bookedDates)
+        const bookedDates = <?= json_encode($bookedDates); ?>;
 
         function renderCalendar() {
             datesContainer.innerHTML = '';
             const month = currentDate.getMonth();
             const year = currentDate.getFullYear();
             monthYear.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
-
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -331,8 +339,7 @@ session_start();
                 datesContainer.appendChild(emptyDiv);
             }
 
-            const selectedDate = sessionStorage.getItem('selectedDate'); // ดึงวันที่ที่ถูกเลือก
-
+            // Render each day of the month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateDiv = document.createElement('div');
                 dateDiv.textContent = day;
@@ -340,26 +347,24 @@ session_start();
 
                 const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-                // ไฮไลท์วันที่ปัจจุบัน
+                // เพิ่มคลาส 'today' สำหรับวันที่ปัจจุบัน
                 if (day === currentDate.getDate() && currentDate.getMonth() === new Date().getMonth() && currentDate.getFullYear() === new Date().getFullYear()) {
                     dateDiv.classList.add('today');
                 }
 
-                // ไฮไลท์วันที่ที่ถูกเลือก
-                if (selectedDate === fullDate) {
-                    dateDiv.classList.add('selected');
+                // เพิ่มคลาส 'booked' ถ้าวันนั้นมีการจอง
+                if (bookedDates.includes(fullDate)) {
+                    dateDiv.classList.add('booked');
                 }
-                // เพิ่ม event listener ให้คลิกวันที่ไปยัง all_reservation.php พร้อมพารามิเตอร์วันที่
+
+                // กำหนดการคลิกสำหรับแต่ละวันที่เพื่อกรองข้อมูลการจอง
                 dateDiv.addEventListener('click', () => {
-                    sessionStorage.setItem('selectedDate', fullDate); // บันทึกวันที่ที่เลือก
                     window.location.href = `all_reservation.php?date=${fullDate}`;
                 });
 
                 datesContainer.appendChild(dateDiv);
             }
         }
-
-
 
         prevMonthBtn.addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
@@ -372,14 +377,8 @@ session_start();
         });
 
         renderCalendar();
-
-        dateDiv.addEventListener('click', () => {
-            // บันทึกวันที่ที่เลือกลงใน Session Storage
-            sessionStorage.setItem('selectedDate', fullDate);
-            window.location.href = `all_reservation.php?date=${fullDate}`;
-        });
-
     </script>
+
 </body>
 
 </html>

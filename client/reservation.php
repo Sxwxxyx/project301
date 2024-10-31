@@ -1,6 +1,7 @@
 <?php
 session_start();
 $responseMessage = '';
+$responseClass = ''; // กำหนดค่าเริ่มต้น
 
 // ตรวจสอบการล็อกอินของผู้ใช้
 if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $result = json_decode($response, true);
             $responseMessage = 'Reservation successful! Room Type: ' . $room_type . ', Date: ' . $date . ', Start Time: ' . $start_time . ', End Time: ' . $end_time;
+            $responseClass = 'success';
         }
     }
 }
@@ -61,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservation</title>
     <title>Reservation</title>
     <style>
         body {
@@ -109,60 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #007bff;
         }
 
-        /* ปุ่มแฮมเบอร์เกอร์ */
-        .hamburger {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 22px;
-        }
-
-        .hamburger div {
-            background-color: #333;
-            height: 3px;
-            width: 100%;
-        }
-
-        /* เมนูแสดงซ่อน */
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            right: 30px;
-            top: 60px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 4px;
-            z-index: 1;
-            /* Ensure it appears above other content */
-        }
-
-        .dropdown-menu a {
-            text-decoration: none;
-            color: #333;
-            display: block;
-            padding: 10px 15px;
-            font-size: 14px;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #007bff;
-            color: #fff;
-        }
-
         .reservation {
             background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
             padding-top: 1%
-                /* height: 80vh;  */
         }
 
         .container {
-
             background-color: white;
             padding: 20px;
             border-radius: 8px;
@@ -179,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 24px;
             margin-bottom: 20px;
             align-self: flex-start;
-            /* ให้อยู่ด้านบนของ container */
         }
 
         table {
@@ -200,7 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #003366;
             color: white;
             vertical-align: top;
-            /* ให้อักษรอยู่ด้านบนของเซลล์ */
         }
 
         form {
@@ -218,15 +172,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #0050b3;
         }
 
-        input[type="text"] {
-            width: 96.5%;
-            padding: 10px;
-            border: 1px solid #c4c4c4;
-            border-radius: 4px;
-            background-color: #c4d9f2;
+        input[type="text"],
+        input[type="date"],
+        input[type="time"]
+        {
+        width: 96.5%;
+        padding: 10px;
+        border: 1px solid #c4c4c4;
+        border-radius: 4px;
+        background-color: #c4d9f2;
         }
 
-        .room {
+        select.room {
             width: 100%;
             padding: 10px;
             border: 1px solid #c4c4c4;
@@ -235,23 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
 
-        input[type="date"] {
-            width: 96.5%;
-            padding: 10px;
-            border: 1px solid #c4c4c4;
-            border-radius: 4px;
-            background-color: #c4d9f2;
-        }
 
-        input[type="time"] {
-            width: 96.5%;
-            padding: 10px;
-            border: 1px solid #c4c4c4;
-            border-radius: 4px;
-            background-color: #c4d9f2;
-        }
-
-        [id="room_type"] button {
+        button {
             display: block;
             width: 100%;
             padding: 10px;
@@ -267,24 +209,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #002244;
         }
 
+        /* สไตล์ข้อความสำเร็จ */
         .success {
             color: green;
+            margin-top: 8px;
         }
 
+        /* สไตล์ข้อความผิดพลาด */
         .error {
             color: red;
+            margin-top: 10px;
         }
     </style>
-
 </head>
+
 
 <body>
     <div class="navbar">
         <div class="navbar-left">
             <a href="index.php">
                 <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
-            </a> 
+            </a>
             <a href="reservation.php">Reservation</a>
+            <a href="all_reservation.php">การจองทั้งหมด</a>
             <!-- <a href="calenders.php">Calendar</a> -->
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>

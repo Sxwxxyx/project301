@@ -126,6 +126,32 @@ def reservation():
         "message": "จองห้องสำเร็จ!"
     }), 201
     
+@app.route('/all_reservation', methods=['POST','GET'])
+def all_reservation():
+    try:
+        # ดึงข้อมูลการจองทั้งหมดและเรียงลำดับ
+        all_reservations = list(reservations.find({}, {'_id': 0}).sort([('date', 1), ('room_type', 1), ('start_time', 1)]))
+        reservations_with_username = []
+
+        for reservation in all_reservations:
+            # ใช้ id_student ของการจองเพื่อค้นหาข้อมูลผู้ใช้
+            student_info = registers.find_one({"id_student": reservation['id_student']}, {"username": 1, "_id": 0})
+            reservation['username'] = student_info['username'] if student_info else "ไม่ทราบชื่อผู้ใช้"
+
+            reservations_with_username.append(reservation)
+
+        # ตรวจสอบว่ามีข้อมูลการจองหรือไม่
+        if not reservations_with_username:
+            return jsonify({"message": "ไม่พบข้อมูลการจองในระบบ"}), 200  # เปลี่ยนสถานะจาก 404 เป็น 200
+
+        return jsonify(reservations_with_username), 200
+
+    except Exception as e:
+        return jsonify({"error": "ไม่สามารถดึงข้อมูลการจองได้", "details": str(e)}), 500
+
+    
+    
+
     
 if __name__ == '__main__':
     app.run(debug=True)

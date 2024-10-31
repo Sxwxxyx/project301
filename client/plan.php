@@ -137,6 +137,7 @@
                 <img src="https://www.psu.ac.th/img/introduce/introduce3/psubrand.png" alt="Website Logo">
             </a>
             <a href="reservation.php">Reservation</a>
+            <a href="all_reservation.php">การจองทั้งหมด</a>
             <!-- <a href="calenders.php">Calendar</a> -->
             <a href="plan.php">Room plan</a>
             <a href="contact.php">Contact us</a>
